@@ -29,9 +29,40 @@ db.clusters.insert([
 db.clusters.createIndex({ fakeid: 1 });
 
 
+db.sources.remove({});
+db.sources.insert([
+  {
+    'fakeid': 1,
+    'abbr': 'CNN',
+    'full_name': 'Cable News Network',
+    'home_url': 'http://www.cnn.com/politics',
+    'politics_rss_url': 'http://rss.cnn.com/rss/cnn_allpolitics.rss',
+    'bias': -6,
+    'type': 32
+  },
+  {
+    'fakeid': 2,
+    'abbr': 'FNC',
+    'full_name': 'Fox News Channel',
+    'home_url': 'http://www.foxnews.com/politics.html',
+    'politics_rss_url': 'http://feeds.foxnews.com/foxnews/politics',
+    'bias': 27,
+    'type': 20
+  },
+  {
+    'fakeid': 3,
+    'abbr': 'WAPO',
+    'full_name': 'Washington Post',
+    'home_url': 'https://www.washingtonpost.com/politics/',
+    'politics_rss_url': 'http://feeds.washingtonpost.com/rss/politics',
+    'bias': -10,
+    'type': 51
+  },
+]);
+db.sources.createIndex({ fakeid: 1 });
+
 
 db.articles.remove({});
-
 db.articles.insert([
   {
     "cluster": 163,
@@ -94,45 +125,5 @@ db.articles.insert([
     "summary": "(CNN) The White House said Monday that it will continue to withhold $255 million in military aid to Pakistan out of frustration over what it has characterized as Islamabad's obstinance in confronting terrorist networks.\n\"The United States does not plan to spend the $255 million in FY 2016 foreign military financing for Pakistan at this time,\" a National Security Council spokesman said.\nThe administration first said in August it was temporarily withholding the $255 million, which was part of a $1.1 billion aid package authorized in 2016 by Congress.\nThe National Security Council official said the administration would continue to review Pakistan's level of cooperation in security areas.\nPresident Donald Trump signaled Monday that he was prepared to cut off aid to Pakistan if the country failed to cooperate with the US."
   },
 ]);
-
 db.articles.createIndex({ cluster: 1 });
 db.articles.createIndex({ source: 1 });
-
-
-
-db.sources.remove({});
-
-db.sources.insert([
-  {
-    'fakeid': 1,
-    'abbr': 'CNN',
-    'full_name': 'Cable News Network',
-    'abbr': 'CNN',
-    'home_url': 'http://www.cnn.com/politics',
-    'politics_rss_url': 'http://rss.cnn.com/rss/cnn_allpolitics.rss',
-    'world_rss_url': 'http://rss.cnn.com/rss/cnn_world.rss',
-    'finance_rss_url': 'http://rss.cnn.com/rss/money_latest.rss'
-  },
-  {
-    'fakeid': 2,
-    'abbr': 'FNC',
-    'full_name': 'Fox News Channel',
-    'abbr': 'FNC',
-    'home_url': 'http://www.foxnews.com/politics.html',
-    'politics_rss_url': 'http://feeds.foxnews.com/foxnews/politics',
-    'world_rss_url': 'http://feeds.foxnews.com/foxnews/world',
-    'finance_rss_url': 'http://feeds.foxbusiness.com/foxbusiness/latest'
-  },
-  {
-    'fakeid': 3,
-    'abbr': 'WAPO',
-    'full_name': 'Washington Post',
-    'abbr': 'WAPO',
-    'home_url': 'https://www.washingtonpost.com/politics/',
-    'politics_rss_url': 'http://feeds.washingtonpost.com/rss/politics',
-    'world_rss_url': 'http://feeds.washingtonpost.com/rss/world',
-    'finance_rss_url': 'http://feeds.washingtonpost.com/rss/business'
-  },
-]);
-
-db.sources.createIndex({ fakeid: 1 });
