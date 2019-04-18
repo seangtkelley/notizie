@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router';
 
-export default class IssueEdit extends React.Component {
+export default class ClusterView extends React.Component {
   render() {
     return (
       <div>
@@ -12,6 +12,6 @@ export default class IssueEdit extends React.Component {
   }
 }
 
-IssueEdit.propTypes = {
+ClusterView.propTypes = {
   params: React.PropTypes.object.isRequired,
 };

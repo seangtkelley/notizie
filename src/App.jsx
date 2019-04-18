@@ -2,8 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Router, Route, hashHistory, withRouter, IndexRoute, Link } from 'react-router';
 
-import IssueList from './IssueList.jsx';
-import IssueEdit from './IssueEdit.jsx';
+import ClusterView from './ClusterView.jsx';
 import Dashboard from './Dashboard.jsx';
 
 var contentNode = document.getElementById("contents");
@@ -16,15 +15,8 @@ const NoMatch = () => <p>Page Not Found</p>;
 // by the parent route. See the route definitions below.
 const App = (props) => (
   <div>
-    <div className="header">
-      <h1>Issue Tracker</h1>
-      <p><Link to="/">Logout</Link></p>
-    </div>
     <div className="contents">
       {props.children}
-    </div>
-    <div className="footer">
-      COMPSCI 326
     </div>
   </div >
 );
@@ -48,8 +40,7 @@ const RoutedApp = () => (
     {/* <Redirect from="/" to="/issues" /> - replaced this with the Dashboard component */}
     <Route path="/" component={App} >
       <IndexRoute component={Dashboard} />
-      <Route path="/issues" component={withRouter(IssueList)} />
-      <Route path="/issues/:id" component={IssueEdit} />
+      <Route path="/cluster/:id" component={ClusterView} />
       <Route path="*" component={NoMatch} />
     </Route>
   </Router>);

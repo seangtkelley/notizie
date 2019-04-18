@@ -1,0 +1,53 @@
+/* global body padding */
+body {
+  padding-top:    20px;
+  padding-bottom: 20px;
+}
+
+@media (min-width: 768px) {
+  body {
+    padding-top:    50px;
+    padding-bottom: 50px;
+  }
+}
+
+
+/* global spacing overrides */
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6 {
+  margin-top: 0;
+}
+hr {
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
+
+.navbar-fixed-top,
+.navbar-static-top {
+  border-bottom: 0;
+}
+
+.card {
+  background-color: transparent;
+  border: 1px solid #434857;
+}
+
+#time-selectors .btn {
+  cursor: pointer;
+}
+
+.cap-img-row {
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.cap-img {
+    max-height: 157px;
+    overflow: hidden;
+    padding-right: 0;
+    padding-left: 0;
+}
+
+.cap-img-top {
+    border-radius: 0;
+}
