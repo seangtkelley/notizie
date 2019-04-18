@@ -1,8 +1,96 @@
 import React from 'react';
 import { Link } from 'react-router';
 
+function Cluster(props) {
+  return (
+    <div className="col-6" style={{ float: props.float }}>
+      <div className="card" style={{ width: '100%', marginBottom: '20px' }}>
+        <div className="row cap-img-row">
+          {
+            props.cluster.articles.map((article, i) => {
+              if (i < 4) {
+                return (
+                  <div key={article._id} className="col-md-6 cap-img">
+                    <img className="card-img-top" src={article.top_image} alt="Card image cap" />
+                  </div>
+                )
+              }
+            })
+          }
+        </div>
+        <div className="card-body">
+          <h4 className="card-title">
+            <Link to={`/cluster/${props.cluster.id}`} >{props.cluster.title}</Link>
+          </h4>
+          <p className="card-text">Number of Articles: {props.cluster.articles.length}</p>
+        </div>
+        <ul className="list-group list-group-flush">
+          {
+            props.cluster.articles.map((article, i) => {
+              if (i < 4) {
+                return <li key={article._id} className="list-group-item"><a href={article.url} target="_blank">{article.title}</a></li>;
+              }
+            })
+          }
+        </ul>
+      </div>
+    </div>
+  );
+}
+
 export default class Dashboard extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      clusters: [],
+      articles: {}
+    };
+
+    this.loadData = this.loadData.bind(this);
+  }
+
+  componentDidMount() {
+    this.loadData();
+  }
+
+  loadData() {
+    fetch('/api/clusters').then(response => {
+      if (response.ok) {
+        response.json().then(clusterdata => {
+
+          for(let i=0; i < clusterdata.records.length; i++){
+            fetch(`/api/articles?cluster=${clusterdata.records[i].fakeid}`).then(response => { // change to not fake id haha
+              if (response.ok) {
+                response.json().then(articledata => {
+                  let cluster = clusterdata.records[i]
+                  cluster.articles = articledata.records;
+                  this.state.clusters.push(cluster);
+                  this.setState({ clusters: this.state.clusters });
+                });
+              } else {
+                response.json().then(error => {
+                  alert("Failed to fetch issues:" + error.message)
+                });
+              }
+            }).catch(err => {
+              alert("Error in fetching data from server:", err);
+            });
+          }
+        });
+      } else {
+        response.json().then(error => {
+          alert("Failed to fetch issues:" + error.message)
+        });
+      }
+    }).catch(err => {
+      alert("Error in fetching data from server:", err);
+    });
+  }
+
   render() {
+    const clusters = this.state.clusters.map((cluster, i) => (
+      <Cluster key={cluster._id} cluster={cluster} float={((i % 2 === 0) ? 'left' : 'right')}/>
+    ));
     return (
       <div className="container">
         <div className="dashhead">
@@ -35,14 +123,9 @@ export default class Dashboard extends React.Component {
         <hr className="mt-0 mb-5" />
 
         <div className="tab-content">
-          <div role="tabpanel" className="tab-pane active" id="old">
-          </div>
-        </div>
-
-        <div role="tabpanel" className="tab-pane" id="prob">
-        </div>
-
-        <div role="tabpanel" className="tab-pane" id="twitter">
+          <div role="tabpanel" className="tab-pane active" id="old">{clusters}</div>
+          <div role="tabpanel" className="tab-pane" id="prob"></div>
+          <div role="tabpanel" className="tab-pane" id="twitter"></div>
         </div>
       </div>
     );
