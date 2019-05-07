@@ -23,8 +23,8 @@ app.get('/api/clusters', (req, res) => {
 
 app.get('/api/articles', (req, res) => {
   const filter = {};
-  if (req.query.cluster) filter.cluster = parseInt(req.query.cluster);
-  if (req.query.source) filter.source = parseInt(req.query.source);
+  if (req.query.cluster) filter.cluster = req.query.cluster;
+  if (req.query.source) filter.source = req.query.source;
 
   db.collection('articles').find(filter).toArray().then(articles => {
     const metadata = { total_count: articles.length };

@@ -58,13 +58,16 @@ export default class Dashboard extends React.Component {
         response.json().then(clusterdata => {
 
           for(let i=0; i < clusterdata.records.length; i++){
-            fetch(`/api/articles?cluster=${clusterdata.records[i].fakeid}`).then(response => { // change to not fake id haha
+            fetch(`/api/articles?cluster=${clusterdata.records[i]._id}`).then(response => {
               if (response.ok) {
                 response.json().then(articledata => {
-                  let cluster = clusterdata.records[i]
+                  let cluster = clusterdata.records[i];
                   cluster.articles = articledata.records;
                   this.state.clusters.push(cluster);
-                  this.setState({ clusters: this.state.clusters });
+
+                  if(i === clusterdata.records.length-1){
+                    this.setState({ clusters: this.state.clusters });
+                  }
                 });
               } else {
                 response.json().then(error => {
