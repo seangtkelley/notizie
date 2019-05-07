@@ -169,7 +169,7 @@ def update_clusters(type_str, category):
     mydb = mgclient["notizie"]
 
     # delete all old objects
-    mydb['clusters'].delete_many({})
+    mydb['clusters'].delete_many({'algo': 0})
 
     # get sources
     sources = mydb['sources'].find()
@@ -245,4 +245,92 @@ def update_clusters(type_str, category):
 
                 mydb['articles'].insert_one(new_article)
 
-update_clusters('current', 'politics')
+
+def update_clusters_new(type_str, category):
+    # get database connection
+    mgclient = pymongo.MongoClient("mongodb://localhost/")
+    mydb = mgclient["notizie"]
+
+    # delete all old objects
+    mydb['clusters'].delete_many({'algo': 1})
+
+    # get sources
+    sources = mydb['sources'].find()
+
+    # fetch articles
+    articles = fetch_articles(sources, type_str, category)
+
+    # use extend so it's a big flat list of vocab
+    totalvocab_stemmed = []
+    totalvocab_tokenized = []
+    for i in articles['title']:
+        # for each item in 'synopses', tokenize/stem
+        allwords_stemmed = tokenize_and_stem(i)
+        # extend the 'totalvocab_stemmed' list
+        totalvocab_stemmed.extend(allwords_stemmed)
+
+        allwords_tokenized = tokenize_only(i)
+        totalvocab_tokenized.extend(allwords_tokenized)
+
+    vocab_frame = pd.DataFrame(
+        {'words': totalvocab_tokenized}, index=totalvocab_stemmed)
+
+    # define vectorizer parameters
+    tfidf_vectorizer = TfidfVectorizer(max_df=0.8, max_features=200000,
+                                       min_df=0.05, stop_words=custom_stopwords,
+                                       use_idf=True, tokenizer=tokenize_and_stem, ngram_range=(1, 5))
+
+    tfidf_matrix = tfidf_vectorizer.fit_transform(articles['title'])  # fit the vectorizer to synopses
+
+    terms = tfidf_vectorizer.get_feature_names()
+
+    # dist = 1 - cosine_similarity(tfidf_matrix)
+
+    num_clusters = 8
+
+    km = KMeans(n_clusters=num_clusters)
+
+    km.fit(tfidf_matrix)
+
+    clusters = km.labels_.tolist()
+
+    articles['cluster'] = clusters
+
+    # sort cluster centers by proximity to centroid
+    order_centroids = km.cluster_centers_.argsort()[:, ::-1]
+    print(km.cluster_centers_)
+
+    for cluster_num in range(num_clusters):
+
+        top_words = []
+        # replace 10 with n words per cluster
+        for ind in order_centroids[cluster_num, :10]:
+            top_words.append(
+                vocab_frame.loc[terms[ind].split(' ')].values.tolist()[0][0])
+            print(vocab_frame.loc[terms[ind].split(' ')].values.tolist())
+        name = ", ".join(top_words)
+
+        cluster = dict(type=type_str, algo=1, category=category, title=name)
+        cluster_doc = mydb['clusters'].insert_one(cluster)
+
+        for _, article in articles.iterrows():
+            if article['cluster'] == cluster_num:
+                # ignore if too far away from cluster centroid
+
+                # find the source
+                source = mydb['sources'].find_one({'abbr': article['source']})
+
+                # create article object
+                new_article = dict(cluster=str(cluster_doc.inserted_id),
+                                   title=str(article['title']),
+                                   articles=str(article['authors']),
+                                   top_image=str(article['top_image']),
+                                   source=str(source['_id']),
+                                   url=str(article['url']),
+                                   summary=str(article['summary']),
+                                   text=str(article['text']))
+
+                mydb['articles'].insert_one(new_article)
+
+#update_clusters('current', 'politics')
+update_clusters_new('current', 'politics')
