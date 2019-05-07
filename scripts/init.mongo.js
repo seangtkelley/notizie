@@ -14,11 +14,13 @@ db.clusters.insert([
   {
     "fakeid": 163,
     "type": "current",
+    "algo": 0,
     "title": "wrote, reporters, chiefs, federal, law, accusing, justice, worked, posted, announced"
   },
   {
     "fakeid": 164,
     "type": "current",
+    "algo": 1,
     "title": "trump, president, tweets, states, united, united, yearly, aides, new, country"
   }
 ]);

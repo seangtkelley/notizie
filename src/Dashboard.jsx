@@ -42,8 +42,7 @@ export default class Dashboard extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      clusters: [],
-      articles: {}
+      clusters: []
     };
 
     this.loadData = this.loadData.bind(this);
@@ -88,7 +87,13 @@ export default class Dashboard extends React.Component {
   }
 
   render() {
-    const clusters = this.state.clusters.map((cluster, i) => (
+    const old_clusters = this.state.clusters.filter(obj => obj.algo === 0).map((cluster, i) => (
+      <Cluster key={cluster._id} cluster={cluster} float={((i % 2 === 0) ? 'left' : 'right')}/>
+    ));
+    const prob_clusters = this.state.clusters.filter(obj => obj.algo === 1).map((cluster, i) => (
+      <Cluster key={cluster._id} cluster={cluster} float={((i % 2 === 0) ? 'left' : 'right')}/>
+    ));
+    const twitter_clusters = this.state.clusters.filter(obj => obj.algo === 2).map((cluster, i) => (
       <Cluster key={cluster._id} cluster={cluster} float={((i % 2 === 0) ? 'left' : 'right')}/>
     ));
     return (
@@ -123,9 +128,9 @@ export default class Dashboard extends React.Component {
         <hr className="mt-0 mb-5" />
 
         <div className="tab-content">
-          <div role="tabpanel" className="tab-pane active" id="old">{clusters}</div>
-          <div role="tabpanel" className="tab-pane" id="prob"></div>
-          <div role="tabpanel" className="tab-pane" id="twitter"></div>
+          <div role="tabpanel" className="tab-pane active" id="old">{old_clusters}</div>
+          <div role="tabpanel" className="tab-pane" id="prob">{prob_clusters}</div>
+          <div role="tabpanel" className="tab-pane" id="twitter">{twitter_clusters}</div>
         </div>
       </div>
     );
