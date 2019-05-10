@@ -12,7 +12,7 @@ const MongoClient = require('mongodb').MongoClient;
 app.get('/api/clusters', (req, res) => {
   const filter = {};
 
-  db.collection('clusters').find(filter).toArray().then(clusters => {
+  db.collection('clusters').find(filter).sort({ mean_dist: 1 }).toArray().then(clusters => {
     const metadata = { total_count: clusters.length };
     res.json({ _metadata: metadata, records: clusters })
   }).catch(error => {
@@ -26,7 +26,7 @@ app.get('/api/articles', (req, res) => {
   if (req.query.cluster) filter.cluster = req.query.cluster;
   if (req.query.source) filter.source = req.query.source;
 
-  db.collection('articles').find(filter).toArray().then(articles => {
+  db.collection('articles').find(filter).sort({ dist: 1 }).toArray().then(articles => {
     const metadata = { total_count: articles.length };
     res.json({ _metadata: metadata, records: articles })
   }).catch(error => {

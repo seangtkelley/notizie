@@ -71,21 +71,21 @@ export default class Dashboard extends React.Component {
                 });
               } else {
                 response.json().then(error => {
-                  alert("Failed to fetch issues:" + error.message)
+                  console.log("Failed to fetch issues:" + error.message)
                 });
               }
             }).catch(err => {
-              alert("Error in fetching data from server:", err);
+              console.log("Error in fetching data from server:", err);
             });
           }
         });
       } else {
         response.json().then(error => {
-          alert("Failed to fetch issues:" + error.message)
+          console.log("Failed to fetch issues:" + error.message)
         });
       }
     }).catch(err => {
-      alert("Error in fetching data from server:", err);
+      console.log("Error in fetching data from server:", err);
     });
   }
 

@@ -204,7 +204,7 @@ def update_clusters(type_str, category):
 
     # dist = 1 - cosine_similarity(tfidf_matrix)
 
-    num_clusters = 4
+    num_clusters = int(math.sqrt(articles.shape[0] / 2) * 1.5)
 
     km = KMeans(n_clusters=num_clusters)
 
@@ -287,7 +287,7 @@ def update_clusters_new(type_str, category):
 
     # dist = 1 - cosine_similarity(tfidf_matrix)
 
-    num_clusters = 4
+    num_clusters = 8
 
     km = KMeans(n_clusters=num_clusters)
 
@@ -310,12 +310,14 @@ def update_clusters_new(type_str, category):
                 vocab_frame.loc[terms[ind].split(' ')].values.tolist()[0][0])
         name = ", ".join(top_words)
 
-        cluster = dict(type=type_str, algo=1, category=category, title=name)
-        cluster_doc = mydb['clusters'].insert_one(cluster)
-
-        distances = [ np.linalg.norm(tfidf_matrix[idx] - km.cluster_centers_[cluster_num]) for idx, article in articles[articles['cluster'] == cluster_num].iterrows()]
+        # find distances of articles to cluster
+        distances = [ np.linalg.norm(tfidf_matrix[idx] - km.cluster_centers_[cluster_num]) for idx in articles[articles['cluster'] == cluster_num].index.tolist() ]
         mean_dist = np.mean(distances)
         std_dist = np.std(distances)
+
+        # create cluster object
+        cluster = dict(type=type_str, algo=1, category=category, title=name, mean_dist=mean_dist, std_dist=std_dist)
+        cluster_doc = mydb['clusters'].insert_one(cluster)
 
         article_idx = 0
         for _, article in articles[articles['cluster'] == cluster_num].iterrows():
@@ -327,13 +329,13 @@ def update_clusters_new(type_str, category):
                 # create article object
                 new_article = dict(cluster=str(cluster_doc.inserted_id),
                                     title=str(article['title']),
-                                    articles=str(article['authors']),
+                                    authors=str(article['authors']),
                                     top_image=str(article['top_image']),
                                     source=str(source['_id']),
                                     url=str(article['url']),
                                     summary=str(article['summary']),
-                                    text=str(article['text']))
-
+                                    dist=distances[article_idx])
+                                    
                 mydb['articles'].insert_one(new_article)
 
             article_idx += 1
