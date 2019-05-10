@@ -1,6 +1,7 @@
 import newspaper
 import feedparser
 import pandas as pd
+import numpy as np
 import math
 import nltk
 import re
@@ -203,7 +204,7 @@ def update_clusters(type_str, category):
 
     # dist = 1 - cosine_similarity(tfidf_matrix)
 
-    num_clusters = int(math.sqrt(articles.shape[0] / 2) * 1.5)
+    num_clusters = 4
 
     km = KMeans(n_clusters=num_clusters)
 
@@ -263,7 +264,7 @@ def update_clusters_new(type_str, category):
     # use extend so it's a big flat list of vocab
     totalvocab_stemmed = []
     totalvocab_tokenized = []
-    for i in articles['title']:
+    for i in articles['text']:
         # for each item in 'synopses', tokenize/stem
         allwords_stemmed = tokenize_and_stem(i)
         # extend the 'totalvocab_stemmed' list
@@ -278,15 +279,15 @@ def update_clusters_new(type_str, category):
     # define vectorizer parameters
     tfidf_vectorizer = TfidfVectorizer(max_df=0.8, max_features=200000,
                                        min_df=0.05, stop_words=custom_stopwords,
-                                       use_idf=True, tokenizer=tokenize_and_stem, ngram_range=(1, 5))
+                                       use_idf=True, tokenizer=tokenize_and_stem, ngram_range=(1, 4))
 
-    tfidf_matrix = tfidf_vectorizer.fit_transform(articles['title'])  # fit the vectorizer to synopses
+    tfidf_matrix = tfidf_vectorizer.fit_transform(articles['text'])  # fit the vectorizer to synopses
 
     terms = tfidf_vectorizer.get_feature_names()
 
     # dist = 1 - cosine_similarity(tfidf_matrix)
 
-    num_clusters = 8
+    num_clusters = 4
 
     km = KMeans(n_clusters=num_clusters)
 
@@ -307,30 +308,35 @@ def update_clusters_new(type_str, category):
         for ind in order_centroids[cluster_num, :10]:
             top_words.append(
                 vocab_frame.loc[terms[ind].split(' ')].values.tolist()[0][0])
-            print(vocab_frame.loc[terms[ind].split(' ')].values.tolist())
         name = ", ".join(top_words)
 
         cluster = dict(type=type_str, algo=1, category=category, title=name)
         cluster_doc = mydb['clusters'].insert_one(cluster)
 
-        for _, article in articles.iterrows():
-            if article['cluster'] == cluster_num:
-                # ignore if too far away from cluster centroid
+        distances = [ np.linalg.norm(tfidf_matrix[idx] - km.cluster_centers_[cluster_num]) for idx, article in articles[articles['cluster'] == cluster_num].iterrows()]
+        mean_dist = np.mean(distances)
+        std_dist = np.std(distances)
 
+        article_idx = 0
+        for _, article in articles[articles['cluster'] == cluster_num].iterrows():
+            # ignore if too far away from cluster centroid
+            if distances[article_idx] < mean_dist + std_dist:
                 # find the source
                 source = mydb['sources'].find_one({'abbr': article['source']})
 
                 # create article object
                 new_article = dict(cluster=str(cluster_doc.inserted_id),
-                                   title=str(article['title']),
-                                   articles=str(article['authors']),
-                                   top_image=str(article['top_image']),
-                                   source=str(source['_id']),
-                                   url=str(article['url']),
-                                   summary=str(article['summary']),
-                                   text=str(article['text']))
+                                    title=str(article['title']),
+                                    articles=str(article['authors']),
+                                    top_image=str(article['top_image']),
+                                    source=str(source['_id']),
+                                    url=str(article['url']),
+                                    summary=str(article['summary']),
+                                    text=str(article['text']))
 
                 mydb['articles'].insert_one(new_article)
 
-#update_clusters('current', 'politics')
+            article_idx += 1
+
+update_clusters('current', 'politics')
 update_clusters_new('current', 'politics')
