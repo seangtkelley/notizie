@@ -1,11 +1,13 @@
-# Application 25 - Nested Routes
+# Notizie
 
-Chapter 8 - React Router
+This project is a continuation of one of my previous projects. My blog post about it can be found [here](http://seangtkelley.me/blog/2018/01/03/news-article-clustering).
 
-The goal of this version of the application is to provide nested routes. A nested route allows us to provide a common header/footer to several views, making it easier to isolate changes.
+Essentially, my goal was to use clustering algorithms to discover news stories using articles from different news sources. Although, my original method was rather simple and naive, it showed promise in story discovery.
 
-* The purpose of nested routes is to make it easier to define parts of a view that are shared amongst several views. For example, a header and a footer. The first thing we do is refactor `src/App.jsx` to include a new `App` component that defines the top structure of all the views in the app. The important part of this change is the `props.children` property that will inject the rendered route matched as a nested route. See below.
-* Next, we modify the react router to include a top route for "/" that uses the `App` component as the top-most component. It then matches a route and supplies the matched component as the `props.children` of the `App` component.
-* Next, we delete `<h1>Issue Tracker</h1>` in the `IssueList` render method as we are now including this as part of all routes that are rendered as part of the issue list application.
-* Now, we add some additional CSS styles for the `header` and `footer` classes used in the definition of the `App` component in `src/App.jsx` to make things look slightly nicer.
-* Lastly, we refactor the `src/App.jsx` router to have an "index route". This allows us to replace the redirect from "/" to "/issues". This is not strictly required, but it is often important if an application has a "landing view" that is different than the application. We do this with the creation of a "Dashboard" component. Our example includes a Dashboard component that simulates login/logout style functionality - without actually logging in or logging out.
+In this project, I'm employ a slightly different approach. Since I wrote the blog post in January 2018, it seems it has only gotten more difficult to consume news in a balanced and unbiased fashion. I especially became aware of the damage of news echo chambers or "bubbles." where the same content and most importantly ideas are distributed and amplified without challenge.
+
+Around the same time, I found the [Media Bias Chart](https://www.adfontesmedia.com/wp-content/uploads/2018/08/Media-Bias-Chart_4.0_8_28_2018-min.jpg) created by [Ad Fontes Media](https://www.adfontesmedia.com/). Although, obviously not without bias itself, the chart was a fantastic visualization of the biases of media outlets from across the journaistic spectrum.
+
+In this project, I seek to implement an algorithm that discovers stories via the "fact reporting" news outlets. Then, it will find analyses and opinion pieces from other outlets and subsequently assign those articles to a discovered story. Then, via a web interface, users will be able to see visually how media from all sides of the political landscape is reporting/covering/spinning/etc a story.
+
+Through the visualization, users will be able to see how media bias manifests itself in their news from day to day.
